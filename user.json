@@ -1,1 +1,7 @@
-[]
+[
+    {
+        "name": "testing",
+        "email": "example@gmail.com",
+        "password": "$2y$10$kgnpF5DiL2KTrH.14.4rveQF6ypMI28z2nPR1ZKtQ6nO0LZEGJBWa"
+    }
+]

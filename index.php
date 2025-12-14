@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
             'password' => $hashedPassword
         ];
 
-        $file = 'users.json';
+        $file = 'user.json';
         $users = [];
 
         try {
@@ -70,21 +70,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
 </head>
 <body>
     <h2>welcome to Registration</h2>
-    <form  method="post" action="">
+
+    <form method="post" action="">
         <label for="username">Name:</label>
-        <input type="text" name="username" id="username" required><br><br>
+        <input type="text" name="name" id="username" required>
+        <span style="color:red;"><?= $errors['name'] ?></span>
+        <br><br>
         
         <label for="useremail">Email:</label>
-        <input type="text" name="useremail" id="useremail" required><br><br>
+        <input type="text" name="email" id="useremail" required>
+        <span style="color:red;"><?= $errors['email'] ?></span>
+        <br><br>
         
         <label for="userpassword">Password:</label>
-        <input type="text" name="userpassword" id="userpassword" required><br><br>
+        <input type="password" name="password" id="userpassword" required>
+        <span style="color:red;"><?= $errors['password'] ?></span>
+        <br><br>
 
         <label for="userconfirmpassword">Confirm Password:</label>
-        <input type="text" name="userconfirmpassword" id="userconfirmpassword" required><br><br>
+        <input type="password" name="confirm_password" id="userconfirmpassword" required>
+        <span style="color:red;"><?= $errors['confirm_password'] ?></span>
+        <br><br>
 
-        <button type="submit">Submit</button>
+        <button type="submit" name="register">Submit</button>
     </form>
 </body>
 </html>
-
