@@ -1,36 +1,62 @@
 <?php
-$errors = [];
-$user_file = 'users.json';
-$users = [];
+$errors = [
+    'name' => '',
+    'email' => '',
+    'password' => '',
+    'confirm_password' => ''
+];
 
-if ($_SERVER['REQUEST_METHOD']==='POST'){
-    $name = ($_POST['username']);
-    $email = ($_POST['useremail']);
-    $password = ($_POST['userpassword']);
-    $confirmpassword = ($_POST['userconfirmpassword']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
+    
+    $name = isset($_POST['name']) ? trim($_POST['name']) : '';
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $confirm_password = isset($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
 
-    if ($name == ''){
-        $errors[] = "Name is required";
+    if ($name === '') $errors['name'] = 'Please enter name';
+    
+    if ($email === '') $errors['email'] = 'Please enter email';
+    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors['email'] = 'Invalid email format';
+    
+    if ($password === '') $errors['password'] = 'Please enter password';
+    else {
+        if (strlen($password) < 8) $errors['password'] = 'Password must be at least 8 characters';
+        elseif (!preg_match('/[A-Z]/', $password)) $errors['password'] = 'Password must include an uppercase letter';
+        elseif (!preg_match('/[0-9]/', $password)) $errors['password'] = 'Password must include a number';
+        elseif (!preg_match('/[\W_]/', $password)) $errors['password'] = 'Password must include a special character';
     }
 
-    if ($email == ''){
-        $errors[] = "Email is required";
-    }else if (!filter_var($email, FILTER_VALIDATE_EMAIL)){
-        $errors[] = "Email is not valid";
-    }
+    if ($confirm_password === '') $errors['confirm_password'] = 'Please confirm password';
+    elseif ($password !== $confirm_password) $errors['confirm_password'] = 'Passwords do not match';
 
-    if ($password == ''){
-        $errors[] = "Password is required";
-    }else if (strlen($password) < 8){
-        $errors[] = "Password must be at least 8 characters long";
-    }else if (!preg_match('/[A-Z]/', $password)){
-        $errors[] = "Password must contain at least one uppercase letter";
-    }
+    if (!array_filter($errors)) {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $user = [
+            'name' => $name,
+            'email' => $email,
+            'password' => $hashedPassword
+        ];
 
-    if ($confirmpassword == ''){
-        $errors[] = "Confirm password is required";
-    }else if ($password !== $confirmpassword){
-        $errors[] = "Password and Confirm password do not match";
+        $file = 'users.json';
+        $users = [];
+
+        try {
+            if (file_exists($file)) {
+                $jsonData = file_get_contents($file);
+                $users = json_decode($jsonData, true);
+                if (!is_array($users)) $users = [];
+            }
+            $users[] = $user;
+
+            if (file_put_contents($file, json_encode($users, JSON_PRETTY_PRINT)) === false) {
+                throw new Exception('Error writing to JSON file.');
+            }
+
+            echo "<p style='color:green;'>Registration successful!</p>";
+
+        } catch (Exception $e) {
+            echo "<div style='color:red'>" . $e->getMessage() . "</div>";
+        }
     }
 }
 ?>
